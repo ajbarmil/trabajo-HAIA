@@ -24,9 +24,9 @@ class Red:
 
 class Agente:
     def __init__(self):
-        self.capas = [np.random.random((c1, c2)) for c1, c2 in zip(TAMAÑO[:-1], TAMAÑO[1:])]
+        self.red = Red
 
-    def hacer_jugada(self, num_agente, num_enemigo):
-        vector = self.vectores[f"{num_agente}X{num_enemigo}"]
+    def hacer_jugada(self, tablero):
+        probabilidades = self.red.predict(tablero)
         # insertar elección sobre el vector [del 0 al 7]
         return None
