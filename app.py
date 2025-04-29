@@ -1,18 +1,19 @@
 import streamlit as st
 from time import sleep
 import numpy as np
+from genetico import AlgoritmoGenetico
 
 
 def start():
-    st.session_state.running = True
+    st.session_state.algoritmo = AlgoritmoGenetico()
 
 
-if "running" not in st.session_state:
-    st.session_state.running = False
+if "algoritmo" not in st.session_state:
+    st.session_state.algoritmo = None
 
 st.title("Algoritmo genético")
 
-if not st.session_state.running:
+if st.session_state.algoritmo is None:
     with st.form("my_form"):
         st.write("Inside the form")
         my_number = st.slider("Tamaño de la población", 1, 100)
@@ -21,5 +22,6 @@ if not st.session_state.running:
 else:
     chart = st.line_chart()
     while True:
-        chart.add_rows([np.random.random()])
+        # chart.add_rows([np.random.random()])
+        chart.add_rows([st.session_state.algoritmo.iterar()])
         sleep(1)
