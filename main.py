@@ -16,3 +16,6 @@ if __name__ == "__main__":
         print("¡Ha ganado el segundo agente!")
     else:
         print("¡Ha sido un empate!")
+
+    print("\nDibujo del tablero:")
+    print(p.dibujar_tablero())

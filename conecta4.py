@@ -67,3 +67,16 @@ class PartidaConecta4:
             if conteo >= 4:
                 return True
         return False
+
+    def dibujar_tablero(self):
+        filas = []
+        for fila in reversed(range(self.MAXIMO_COLUMNAS)):
+            linea = ""
+            for columna in range(1, 8):
+                if fila < len(self.tablero[columna]):
+                    ficha = str(self.tablero[columna][fila])
+                else:
+                    ficha = "·"
+                linea += ficha
+            filas.append(linea)
+        return "\n".join(filas)
