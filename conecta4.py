@@ -80,3 +80,12 @@ class PartidaConecta4:
                 linea += ficha
             filas.append(linea)
         return "\n".join(filas)
+
+
+def simular_partida(agente0, agente1):
+    p = PartidaConecta4(agente0, agente1)
+
+    while p.estado == 2:
+        p.siguiente_turno()
+
+    return p.estado
