@@ -1,54 +1,71 @@
 from dataclasses import dataclass, field
 import random
 import numpy as np
-from csv import writer
-from time import time
-from argparse import ArgumentParser
+from conecta4 import simular_partida
+from agentes.agente_generico import Agente
 
 
 @dataclass
 class Hiperparametros:
-    partidas: int = 10
-    tamaño: int = 100
+    partidas: int = 5
+    tamaño: int = 20
     mutate_prob: float = 0.2
     mutate_var: float = 0.2
-    seleccion_m: int = 30
-    seleccion_n: int = 30
-
-
-def simular(individuo):
-    return np.random.random()
+    seleccion_m: int = 5
+    seleccion_n: int = 5
 
 
 @dataclass
 class AlgoritmoGenetico:
     hiperparametros: Hiperparametros = field(default_factory=Hiperparametros)
-    poblacion: list = field(init=False)
+    poblacion: list = field(default_factory=list)
 
-    # TODO:
     def crear_individuo(self):
-        return np.random.random(10)
+        return Agente()
 
     def crear_poblacion(self):
         self.poblacion = []
         for _ in range(self.hiperparametros.tamaño):
-            individuo = self.crear_individuo()
+            self.poblacion.append((0, self.crear_individuo()))
+
+        for _, individuo in self.poblacion:
             self.poblacion.append((self.fitness(individuo), individuo))
 
     def __post_init__(self):
         self.crear_poblacion()
 
-    # TODO:
     def fitness(self, individuo):
-        return sum(simular(individuo) for _ in range(self.hiperparametros.partidas)) / self.hiperparametros.partidas
+        puntuacion = 0
+        for _ in range(self.hiperparametros.partidas):
+            _, rival = random.choice(self.poblacion)
+            puntuacion += simular_partida(individuo, rival)
+        return puntuacion / self.hiperparametros.partidas
 
-    # TODO:
     def mutate(self, individuo):
+        for i, (pesos, sesgos) in enumerate(zip(individuo.red.pesos, individuo.red.sesgos)):
+            probabilidad_mutacion = np.random.random(pesos.shape)
+            mutacion = np.random.normal(0, 0.2, size=pesos.shape)
+            individuo.red.pesos[i] = pesos + (probabilidad_mutacion < self.hiperparametros.mutate_prob) * mutacion
+
+            probabilidad_mutacion = np.random.random(sesgos.shape)
+            mutacion = np.random.normal(0, 0.2, size=sesgos.shape)
+            individuo.red.sesgos[i] = sesgos + (probabilidad_mutacion < self.hiperparametros.mutate_prob) * mutacion
+
         return individuo
 
-    # TODO:
     def crossover(self, individuo1, individuo2):
-        return individuo1, individuo2
+        hijos = []
+
+        for _ in range(2):
+            factor = np.random.random()
+            for i in range(len(individuo1.red.pesos)):
+                hijo = Agente(init_red=False)
+                hijo.red.pesos.append(factor * individuo1.red.pesos[i] + (1 - factor) * individuo2.red.pesos[i])
+                hijo.red.sesgos.append(factor * individuo1.red.sesgos[i] + (1 - factor) * individuo2.red.sesgos[i])
+
+                hijos.append(hijo)
+
+        return hijos
 
     def seleccion(self):
         muestra = random.sample(self.poblacion, self.hiperparametros.seleccion_m)
@@ -60,6 +77,11 @@ class AlgoritmoGenetico:
         self.poblacion = sorted(self.poblacion, key=lambda x: x[0])[: self.hiperparametros.tamaño]
 
     def iterar(self):
+        if not self.poblacion:
+            self.crear_poblacion()
+            mejor_fitness, _ = min(self.poblacion, key=lambda x: x[0])
+            return mejor_fitness
+
         padres = self.seleccion()
         random.shuffle(padres)
 

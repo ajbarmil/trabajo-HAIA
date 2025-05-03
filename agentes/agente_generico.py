@@ -1,13 +1,11 @@
-import random
 import numpy as np
 
-TAMAÑO = (42, 20, 7)
+TAMAÑO = (56, 20, 7)
 
 
 class Red:
-    def __init__(self):
-        self.pesos = [2 * np.random.random((c1, c2)) - 1 for c1, c2 in zip(TAMAÑO[:-1], TAMAÑO[1:])]
-        self.sesgos = [2 * np.random.random(c1) - 1 for c1 in TAMAÑO[1:]]
+    pesos: list[np.ndarray]
+    sesgos: list[np.ndarray]
 
     def predict(self, x):
         result = x
@@ -23,10 +21,19 @@ class Red:
 
 
 class Agente:
-    def __init__(self):
-        self.red = Red
+    def __init__(self, init_red=True):
+        self.red = Red()
+        if init_red:
+            self.red.pesos = [2 * np.random.random((c1, c2)) - 1 for c1, c2 in zip(TAMAÑO[:-1], TAMAÑO[1:])]
+            self.red.sesgos = [2 * np.random.random(c1) - 1 for c1 in TAMAÑO[1:]]
+        else:
+            self.red.pesos = []
+            self.red.sesgos = []
 
     def hacer_jugada(self, tablero):
-        probabilidades = self.red.predict(tablero)
-        # insertar elección sobre el vector [del 0 al 7]
-        return None
+        array = np.zeros((8, len(tablero))) + 0.5
+        for j, columna in enumerate(tablero):
+            array[columna, j] = columna
+
+        probabilidades = self.red.predict(np.ravel(array) - 0.5)
+        return np.random.choice(len(tablero), p=probabilidades) + 1
