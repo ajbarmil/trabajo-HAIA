@@ -9,10 +9,10 @@ class PartidaConecta4:
         self.estado = 2  # códigos: 0 si ha ganado el agente0, 1 si ha ganado el agente1, 2 si la partida sigue, 3 si hay un empate
 
         for i in range(7):
-            self.tablero[i+1] = []  # 0 para el agente0, 1 para el agente1
+            self.tablero[i + 1] = []  # 0 para el agente0, 1 para el agente1
 
     def siguiente_turno(self):
-        if self.estado == 2: # si nadie ha ganado aún...
+        if self.estado == 2:  # si nadie ha ganado aún...
             # elegir agente que va a jugar
             if self.turno_actual == 0:
                 agente_elegido = self.agente0
@@ -21,6 +21,7 @@ class PartidaConecta4:
 
             # hacer que el agente haga una jugada
             jugada_invalida = True
+            i = 0
             while jugada_invalida:
                 jugada = agente_elegido.hacer_jugada(self.tablero)
                 if len(self.tablero[jugada]) < self.MAXIMO_COLUMNAS:
@@ -34,7 +35,7 @@ class PartidaConecta4:
                 self.estado = self.turno_actual
 
             # comprobar si ha empatado alguien
-            if self.estado not in (0,1):
+            if self.estado not in (0, 1):
                 tablero_completo = True
                 for i in self.tablero:
                     if len(self.tablero[i]) < self.MAXIMO_COLUMNAS:
@@ -89,3 +90,4 @@ def simular_partida(agente0, agente1):
         p.siguiente_turno()
 
     return p.estado
+

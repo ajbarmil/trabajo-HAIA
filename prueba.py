@@ -1,4 +1,6 @@
 from genetico import AlgoritmoGenetico
 
 ga = AlgoritmoGenetico()
-print(ga.iterar())
+
+while True:
+    print(ga.iterar())

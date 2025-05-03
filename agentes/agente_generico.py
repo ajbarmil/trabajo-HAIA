@@ -1,3 +1,4 @@
+from copy import Error
 import numpy as np
 
 TAMAÑO = (56, 20, 7)
@@ -35,5 +36,8 @@ class Agente:
         for j, columna in enumerate(tablero):
             array[columna, j] = columna
 
-        probabilidades = self.red.predict(np.ravel(array) - 0.5)
+        odds = self.red.predict(np.ravel(array) - 0.5)
+        odds = odds * (np.asarray(list(len(columna) for columna in tablero.values())) < 5)
+        exps = np.exp(odds)
+        probabilidades = exps / exps.sum()
         return np.random.choice(len(tablero), p=probabilidades) + 1

@@ -7,8 +7,8 @@ from agentes.agente_generico import Agente
 
 @dataclass
 class Hiperparametros:
-    partidas: int = 5
-    tamaño: int = 20
+    partidas: int = 20
+    tamaño: int = 100
     mutate_prob: float = 0.2
     mutate_var: float = 0.2
     seleccion_m: int = 5
@@ -28,8 +28,11 @@ class AlgoritmoGenetico:
         for _ in range(self.hiperparametros.tamaño):
             self.poblacion.append((0, self.crear_individuo()))
 
-        for _, individuo in self.poblacion:
-            self.poblacion.append((self.fitness(individuo), individuo))
+        nueva_poblacion = []
+        for _, individuo in list(self.poblacion):
+            nueva_poblacion.append((self.fitness(individuo), individuo))
+
+        self.poblacion = nueva_poblacion
 
     def __post_init__(self):
         self.crear_poblacion()
@@ -58,14 +61,14 @@ class AlgoritmoGenetico:
 
         for _ in range(2):
             factor = np.random.random()
+            hijo = Agente(init_red=False)
             for i in range(len(individuo1.red.pesos)):
-                hijo = Agente(init_red=False)
                 hijo.red.pesos.append(factor * individuo1.red.pesos[i] + (1 - factor) * individuo2.red.pesos[i])
                 hijo.red.sesgos.append(factor * individuo1.red.sesgos[i] + (1 - factor) * individuo2.red.sesgos[i])
 
                 hijos.append(hijo)
 
-        return hijos
+        return hijos[0], hijos[1]
 
     def seleccion(self):
         muestra = random.sample(self.poblacion, self.hiperparametros.seleccion_m)
@@ -79,31 +82,31 @@ class AlgoritmoGenetico:
     def iterar(self):
         if not self.poblacion:
             self.crear_poblacion()
-            mejor_fitness, _ = min(self.poblacion, key=lambda x: x[0])
-            return mejor_fitness
 
-        padres = self.seleccion()
-        random.shuffle(padres)
+        else:
+            padres = self.seleccion()
+            random.shuffle(padres)
 
-        hijos = []
-        i = 0
-        while i < len(padres) - 1:
-            padre1, padre2 = padres[i : i + 2]
-            hijo1, hijo2 = self.crossover(padre1, padre2)
+            hijos = []
+            i = 0
+            while i < len(padres) - 1:
+                padre1, padre2 = padres[i : i + 2]
+                hijo1, hijo2 = self.crossover(padre1, padre2)
 
-            hijo1 = self.mutate(hijo1)
-            hijos.append((self.fitness(hijo1), hijo1))
+                hijo1 = self.mutate(hijo1)
+                hijos.append((self.fitness(hijo1), hijo1))
 
-            hijo2 = self.mutate(hijo2)
-            hijos.append((self.fitness(hijo2), hijo2))
+                hijo2 = self.mutate(hijo2)
+                hijos.append((self.fitness(hijo2), hijo2))
 
-            i += 2
+                i += 2
 
-        self.poblacion.extend(hijos)
-        self.criba()
+            self.poblacion.extend(hijos)
+            self.criba()
 
         mejor_fitness, _ = min(self.poblacion, key=lambda x: x[0])
-        return mejor_fitness
+        fitness_promedio = sum(map(lambda x: x[0], self.poblacion)) / self.hiperparametros.tamaño
+        return mejor_fitness, fitness_promedio
 
 
 # if __name__ == "__main__":

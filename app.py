@@ -1,3 +1,4 @@
+import pandas as pd
 import streamlit as st
 from time import sleep
 import numpy as np
@@ -35,9 +36,14 @@ if st.session_state.algoritmo is None:
 
         st.form_submit_button("Iniciar algoritmo", on_click=start)
 else:
-    chart = st.line_chart()
-    print(len(st.session_state.algoritmo.poblacion))
+    data = pd.DataFrame([[0] + list(st.session_state.algoritmo.iterar())], columns=["iteracion", "minimo", "media"])
+    chart = st.line_chart(data, x="iteracion", y=["minimo", "media"])
+    i = 0
     while True:
         # chart.add_rows([np.random.random()])
-        chart.add_rows([st.session_state.algoritmo.iterar()])
-        sleep(1)
+        new_data = pd.DataFrame(
+            [[i] + list(st.session_state.algoritmo.iterar())], columns=["iteracion", "minimo", "media"]
+        )
+        chart.add_rows(new_data)
+        i += 1
+        sleep(0.1)
