@@ -11,8 +11,8 @@ class Hiperparametros:
     tamaño: int = 100
     mutate_prob: float = 0.2
     mutate_var: float = 0.2
-    seleccion_m: int = 5
-    seleccion_n: int = 5
+    seleccion_m: int = 20
+    seleccion_n: int = 20
 
 
 @dataclass
